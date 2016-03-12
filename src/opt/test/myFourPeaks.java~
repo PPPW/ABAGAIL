@@ -50,11 +50,9 @@ public class FourPeaksTest {
         ProbabilisticOptimizationProblem pop = new GenericProbabilisticOptimizationProblem(ef, odd, df);
         
         RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);      
-        FixedIterationTrainer fit = new FixedIterationTrainer(rhc, 1000);
+        FixedIterationTrainer fit = new FixedIterationTrainer(rhc, 200000);
         fit.train();
         System.out.println("RHC: " + ef.value(rhc.getOptimal()));
-        System.out.println(rhc.getOptimal());
-        System.exit(0);
         
         SimulatedAnnealing sa = new SimulatedAnnealing(1E11, .95, hcp);
         fit = new FixedIterationTrainer(sa, 200000);

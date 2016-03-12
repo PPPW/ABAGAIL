@@ -122,7 +122,16 @@ public class StandardGeneticAlgorithm extends OptimizationAlgorithm {
         // the new generation
         population = newPopulation;
         values = newValues;
-        return sum / populationSize;
+        //return sum / populationSize;
+
+        double bestVal = values[0];
+        for (int i = 1; i < population.length; i++) {
+            double value = values[i];
+            if (value > bestVal) {
+                bestVal = value;
+            }
+        }
+        return bestVal;
     }
 
     /**

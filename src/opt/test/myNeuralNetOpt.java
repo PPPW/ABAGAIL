@@ -20,7 +20,7 @@ import java.text.*;
  */
 public class myNeuralNetOpt {
 
-    private static int inputLayer = 57, hiddenLayer = 0, outputLayer = 1;
+    private static int inputLayer = 56, hiddenLayer = 0, outputLayer = 1;
     //private int trainingIterations = 1;
     private static BackPropagationNetworkFactory factory = new BackPropagationNetworkFactory();
     
@@ -51,8 +51,8 @@ public class myNeuralNetOpt {
         }
 
         oa[0] = new RandomizedHillClimbing(nnop[0]);
-        oa[1] = new SimulatedAnnealing(1E5, .95, nnop[1]);
-        oa[2] = new StandardGeneticAlgorithm(100, 50, 5, nnop[2]);
+        oa[1] = new SimulatedAnnealing(1E7, .75, nnop[1]);
+        oa[2] = new StandardGeneticAlgorithm(200, 100, 10, nnop[2]);
         
         // this for loop run one algorithm only
 
@@ -80,6 +80,7 @@ public class myNeuralNetOpt {
                 double trash = Math.abs(predicted - actual) < 0.5 ? correct++ : incorrect++;
 
             }
+            
             // testing set
             for(int j = 0; j < instancesTest.length; j++) {
                 networks[i].setInputValues(instancesTest[j].getData());
@@ -89,22 +90,21 @@ public class myNeuralNetOpt {
                 predicted = Double.parseDouble(networks[i].getOutputValues().toString());
 
                 double trash = Math.abs(predicted - actual) < 0.5 ? correctTest++ : incorrectTest++;
-
             }
 
             results +=  "\nResults for " + oaNames[i] 
                 + "%\nTraining time: " + df.format(trainingTime) + " seconds\n"
-                + ": \nTraining correct: " + correct + " instances." 
-                + "\nTraining incorrect: " + incorrect + " instances.\n"
+                + "Training correct: " + correct + " instances.\n" 
+                + "Training incorrect: " + incorrect + " instances.\n"
                 + "Training accuracy: " 
                 + df.format(correct/(correct+incorrect)*100) 
-                + ": \nTesting correct: " + correctTest + " instances." 
+                + "\nTesting correct: " + correctTest + " instances." 
                 + "\nTesting incorrect: " + incorrectTest + " instances.\n"
                 + "Testing accuracy: " 
                 + df.format(correctTest/(correctTest+incorrectTest)*100);
                 
         //}
-
+        
         System.out.println(results);
     }
 

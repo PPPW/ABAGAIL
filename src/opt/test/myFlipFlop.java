@@ -34,7 +34,7 @@ import java.text.*;
  */
 public class myFlipFlop {
     /** The n value */
-    private static final int N = 10;    
+    private static final int N = 50;    
 
     private static EvaluationFunction ef = new FlipFlopEvaluationFunction();
     private static OptimizationAlgorithm[] oa = new OptimizationAlgorithm[4];

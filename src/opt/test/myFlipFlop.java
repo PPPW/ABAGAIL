@@ -1,11 +1,10 @@
 package opt.test;
 
-import opt.OptimizationAlgorithm;
-import opt.ga.NQueensFitnessFunction;
 import dist.DiscreteDependencyTree;
-import dist.DiscretePermutationDistribution;
 import dist.DiscreteUniformDistribution;
 import dist.Distribution;
+
+import opt.OptimizationAlgorithm;
 import opt.DiscreteChangeOneNeighbor;
 import opt.EvaluationFunction;
 import opt.GenericHillClimbingProblem;
@@ -13,7 +12,6 @@ import opt.HillClimbingProblem;
 import opt.NeighborFunction;
 import opt.RandomizedHillClimbing;
 import opt.SimulatedAnnealing;
-import opt.SwapNeighbor;
 import opt.example.*;
 import opt.ga.CrossoverFunction;
 import opt.ga.DiscreteChangeOneMutation;
@@ -22,10 +20,10 @@ import opt.ga.GenericGeneticAlgorithmProblem;
 import opt.ga.GeneticAlgorithmProblem;
 import opt.ga.MutationFunction;
 import opt.ga.StandardGeneticAlgorithm;
-import opt.ga.SwapMutation;
 import opt.prob.GenericProbabilisticOptimizationProblem;
 import opt.prob.MIMIC;
 import opt.prob.ProbabilisticOptimizationProblem;
+import shared.FixedIterationTrainer;
 
 import java.util.*;
 import java.io.*;
@@ -34,30 +32,27 @@ import java.text.*;
 /**
  * @author Pei Wang
  */
-public class myNQueens {
+public class myFlipFlop {
     /** The n value */
-    private static final int N = 10;
+    private static final int N = 10;    
 
-    private static NQueensFitnessFunction ef = new NQueensFitnessFunction();
+    private static EvaluationFunction ef = new FlipFlopEvaluationFunction();
     private static OptimizationAlgorithm[] oa = new OptimizationAlgorithm[4];
     private static String[] oaNames = {"RHC", "SA", "GA", "MIMIC"};
 
     private static DecimalFormat decFormat = new DecimalFormat("0.000");
-
+    
     public static void main(String[] args) {
         int i = Integer.parseInt(args[0]); // use the i'th algorithm
         int trainingIterations = Integer.parseInt(args[1]);
         
         int[] ranges = new int[N];
-        Random random = new Random(N);
-        for (int j = 0; j < N; j++) {
-        	ranges[j] = random.nextInt();
-        }        
-        Distribution odd = new DiscretePermutationDistribution(N);
-        NeighborFunction nf = new SwapNeighbor();
-        MutationFunction mf = new SwapMutation();
+        Arrays.fill(ranges, 2);
+        Distribution odd = new DiscreteUniformDistribution(ranges);
+        NeighborFunction nf = new DiscreteChangeOneNeighbor(ranges);
+        MutationFunction mf = new DiscreteChangeOneMutation(ranges);
         CrossoverFunction cf = new SingleCrossOver();
-        Distribution df = new DiscreteDependencyTree(.1); 
+        Distribution df = new DiscreteDependencyTree(.1, ranges); 
         HillClimbingProblem hcp = new GenericHillClimbingProblem(ef, odd, nf);
         GeneticAlgorithmProblem gap = new GenericGeneticAlgorithmProblem(ef, odd, mf, cf);
         ProbabilisticOptimizationProblem pop = new GenericProbabilisticOptimizationProblem(ef, odd, df);
@@ -67,28 +62,6 @@ public class myNQueens {
         oa[2] = new StandardGeneticAlgorithm(200, 100, 10, gap);
         oa[3] = new MIMIC(200, 20, pop);
 
-        /*************************************************************
-         * check how many iterations it takes for convergence.
-         * 
-         **************************************************************/
-        /*
-        int numToRun = 20;
-        for (int j = 0; j < numToRun; j++) {
-            oa[0] = new RandomizedHillClimbing(hcp);
-            oa[1] = new SimulatedAnnealing(1E11, .95, hcp);
-            oa[2] = new StandardGeneticAlgorithm(200, 100, 10, gap);
-            oa[3] = new MIMIC(200, 20, pop);
-
-            double start = System.nanoTime(), end, trainingTime;
-            System.out.print(train(oa[i], oaNames[i], trainingIterations) + " " +
-                             ef.value(oa[i].getOptimal()) + " "
-                             );
-            end = System.nanoTime();
-            trainingTime = end - start;
-            trainingTime /= Math.pow(10,9);
-            System.out.println(decFormat.format(trainingTime));
-        }
-        */
         /*************************************************************
          * Get scores vs iterations, and training time.
          * 
@@ -105,14 +78,7 @@ public class myNQueens {
         System.out.println("Final score:  " + ef.value(oa[i].getOptimal()));
         
         System.out.println(oa[i].getOptimal());        
-        
-        /*
-        // the ConvergenceTrainer has a problem: if it stuck at local minimum for 
-        // even one iteration, it's recoginized as converged.
-        ConvergenceTrainer ct = new ConvergenceTrainer(oa[i], 0.01, 100000);
-        ct.train();
-        System.out.println(ct.getIterations() + " " + ef.value(oa[i].getOptimal()));
-        */
+
     }
 
     private static int train(OptimizationAlgorithm oa, String oaName, int trainingIterations) {
@@ -127,7 +93,7 @@ public class myNQueens {
 
         // the optimal score is 0
         int currentNumOpt = 0;
-        double optimalScore = N*(N-1)/2;
+        double optimalScore = N-1;
         int numOpt = 1; 
         for(int i = 0; i < trainingIterations; i++) {    
             currentScore = oa.train();

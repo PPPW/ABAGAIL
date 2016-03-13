@@ -50,9 +50,9 @@ public class myTravelingSalesman {
         for (int j = 0; j < points.length; j++) {
             points[j][0] = random.nextDouble();
             points[j][1] = random.nextDouble();
-            System.out.println(points[j][0] + " " + points[j][1]);
+            //System.out.println(points[j][0] + " " + points[j][1]);
         }
-        System.exit(0);
+        //System.exit(0);
         // for rhc, sa, and ga we use a permutation based encoding
         TravelingSalesmanEvaluationFunction ef = new TravelingSalesmanRouteEvaluationFunction(points);        
         Distribution odd = new DiscretePermutationDistribution(N);
@@ -126,24 +126,40 @@ public class myTravelingSalesman {
     private static int train(OptimizationAlgorithm oa, String oaName, int trainingIterations) {
         //System.out.println("Max iterations: ", trainingIterations);
         //System.out.println("\nError results for " + oaName + "\n---------------------------");
-               
-        double currentScore;
+       // check convergence
+        double currentScore = -1;
         double lastScore = Double.MAX_VALUE;
-        double threshold = 0.001;
-        int currentNumOpt = 0;
-        int numOpt = trainingIterations / 10; 
+        double threshold = 0.001;        
+        int numConverge = trainingIterations / 10; 
+        int currentConverge = 0;
+
+        // the optimal score is 0
+        //int currentNumOpt = 0;
+        //double optimalScore = N*(N-1)/2;
+        //int numOpt = 1; 
         for(int i = 0; i < trainingIterations; i++) {    
             currentScore = oa.train();
-            if (Math.abs(currentScore - lastScore) <= threshold) currentNumOpt++;
-            else currentNumOpt = 0;
+            // if reaches the global optimal, stop
+            //if (currentScore == optimalScore) currentNumOpt++;
+            //else currentNumOpt = 0;
 
-            if (currentNumOpt == numOpt) {                
+            //if (currentNumOpt == numOpt) { 
+                //System.out.println("1-> "+ currentScore);
+            //    return i;
+            //}
+            // if converges, stop
+            if (Math.abs(currentScore - lastScore) <= threshold) currentConverge++;
+            else currentConverge = 0;
+
+            if (currentConverge == numConverge) { 
+                //System.out.println("2-> "+ currentScore);
                 return i;
             }
 
             lastScore = currentScore;
             //System.out.println(oa.train());                        
         }
-        return trainingIterations; 
+        //System.out.println("3-> "+ currentScore);
+        return trainingIterations;        
     }
 }
